@@ -1,0 +1,73 @@
+---
+title: "hw2_leaflet"
+author: "Yvonne Li"
+date: "October 3, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+require(rgdal)
+require(leaflet)
+require(leaflet.extras)
+
+require(dplyr)
+require(readxl)
+require(stringr)
+```
+
+
+
+##Pittsburgh Restaurant Rating (marker，color change points)
+```{r}
+#load local pittsburgh restaurant data 
+yelp <- read.csv("yelp.csv")
+
+#color pallet based on restaurant rating 
+pal311 <- colorFactor(c("#d73027", "#1a9850"), c("Good", "Below Avg"))
+
+#Create map 
+leaflet() %>%
+  # Basemaps
+  addTiles(group = "OSM (default)") %>%
+  addProviderTiles("OpenStreetMap.HOT") %>%
+  # Restrict View at Pittsburgh Area
+  setView(-79.9959, 40.4406, zoom = 10)  %>% 
+  #add circle marker based on restarurant rating 
+  addCircleMarkers(data = yelp, lng = ~longitude, lat = ~latitude, radius = 1.5, 
+                   color= ~pal311(stars_avg), 
+                   clusterOptions = markerClusterOptions()) %>%
+  #add legend 
+  addLegend(position = "topright" , pal = pal311, values = yelp$stars_avg, title = "Restaurant Rating")
+  
+
+```
+
+##My Daily Route (layer control, polyline)
+```{r}
+
+#load local pittsburgh restaurant data 
+life <- read.csv("life_line.csv")
+leaflet() %>%
+  # Basemaps
+  addTiles(group = "OSM (default)") %>%
+  addProviderTiles("OpenStreetMap.HOT") %>%
+  #Restrict View at Campus Area
+  setView(-79.950685, 40.443519, zoom = 15)  %>%
+  #Add markers of location I usually visit 
+  addAwesomeMarkers(data = life,lat = ~lat, lng = ~long,popup = ~name,group = "Location") %>%
+  #add the route of the locations 
+  addPolylines(data = life,lat = ~lat, lng = ~long, color = "red"
+  ,group = "Route")  %>%
+  # Layers control
+  addLayersControl(
+    overlayGroups = c("Location", "Route"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+
+```
+
+##map with polygon
+```{r}
+
+
+```
